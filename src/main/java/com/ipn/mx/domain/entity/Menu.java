@@ -29,7 +29,9 @@ public class Menu implements Serializable {
     @Column(name = "stock")
     private int stock;
 
-    //FOREIGN_KEY id_cafeteria;
+    @ManyToOne
+    @JoinColumn(name = "id_cafeteria", nullable = false)
+    private Cafeteria cafeteria;
 
 
 }

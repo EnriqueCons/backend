@@ -30,5 +30,7 @@ public class QR implements Serializable {
     @Column(name = "caducidad")
     private Date caducidad;
 
-    //FOREIGN KEY: id_Comprador
+    @ManyToOne
+    @JoinColumn(name = "id_Comprador", nullable = false)
+    private Comprador comprador;
 }

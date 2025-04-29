@@ -26,5 +26,7 @@ public class Recompensa implements Serializable {
     @Column(name = "cantidadCompra", nullable = false)
     private int cantidadCompra;
 
-    // FOREIGN KEY: id_cafeteria
+    @ManyToOne
+    @JoinColumn(name = "id_cafeteria", nullable = false)
+    private Cafeteria cafeteria;
 }

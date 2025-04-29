@@ -35,7 +35,13 @@ public class Reseña implements Serializable {
     @Max(value = 5, message = "La calificación máxima es 5")
     private Integer calificacion;
 
-    // FOREIGN KEY: id_comprador
-    // FOREIGN KEY: no_orden
+    @ManyToOne
+    @JoinColumn(name = "id_Comprador", nullable = false)
+    private Comprador comprador;
+
+    @ManyToOne
+    @JoinColumn(name = "no_orden", nullable = false)
+    private Pedido pedido;
+
 
 }

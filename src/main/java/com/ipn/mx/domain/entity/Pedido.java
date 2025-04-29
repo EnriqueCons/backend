@@ -27,6 +27,12 @@ public class Pedido implements Serializable {
     @Column(name = "pago_final", precision = 6, scale = 2, nullable = false)
     private Double pago_final;
 
-    // FOREIGN KEY: id_Comprador
-    // FOREIGN KEY: id_cafeteria
+    @ManyToOne
+    @JoinColumn(name = "id_Comprador", nullable = false)
+    private Comprador comprador;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cafeteria", nullable = false)
+    private Cafeteria cafeteria;
+
 }
