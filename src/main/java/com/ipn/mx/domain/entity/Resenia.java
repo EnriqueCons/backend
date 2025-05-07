@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(name = "Reseña")
-public class Reseña implements Serializable {
+public class Resenia implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
