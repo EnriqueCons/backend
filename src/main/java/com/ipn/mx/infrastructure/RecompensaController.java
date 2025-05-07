@@ -40,7 +40,7 @@ public class RecompensaController {
         Recompensa r = service.read(id);
         r.setCantidadCompra(recompensa.getCantidadCompra());
         r.setCantidadPuntos(recompensa.getCantidadPuntos());
-        r.setId_recompensa(recompensa.getId_recompensa());
+        //r.setId_recompensa(recompensa.getId_recompensa());
         r.setCafeteria(recompensa.getCafeteria());
         return service.save(r);
     }

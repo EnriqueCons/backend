@@ -38,7 +38,7 @@ public class QrController {
     public QR update(@PathVariable Integer id, @RequestBody QR qr){
         QR qr1 = service.read(id);
         qr1.setImagen(qr.getImagen());
-        qr1.setId_QR(qr.getId_QR());
+        //qr1.setId_QR(qr.getId_QR());
         qr1.setCantidadPuntos(qr.getCantidadPuntos());
         qr1.setCaducidad(qr.getCaducidad());
         qr1.setComprador(qr.getComprador());

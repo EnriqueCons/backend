@@ -41,7 +41,7 @@ public class PedidoController {
         p.setDescripcion_producto(pedido.getDescripcion_producto());
         p.setPago_final(pedido.getPago_final());
         p.setComprador(pedido.getComprador());
-        p.setNo_orden(pedido.getNo_orden());
+        //p.setNo_orden(pedido.getNo_orden());
         p.setCafeteria(pedido.getCafeteria());
         return service.save(p);
     }

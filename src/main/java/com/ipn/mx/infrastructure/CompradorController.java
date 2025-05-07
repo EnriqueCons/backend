@@ -43,8 +43,8 @@ public class CompradorController {
         comp.setApellidoMaterno(comprador.getApellidoMaterno());
         comp.setCorreo(comprador.getCorreo());
         comp.setContrasenia(comprador.getContrasenia());
-        comp.setId_Comprador(comprador.getId_Comprador());
-        return service.save(comprador);
+        //comp.setId_Comprador(comprador.getId_Comprador());
+        return service.save(comp);
     }
 
     @DeleteMapping("/compradores/{id}")

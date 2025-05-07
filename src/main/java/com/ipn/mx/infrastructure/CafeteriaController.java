@@ -42,8 +42,8 @@ public class CafeteriaController {
         caf.setHora_fin(cafeteria.getHora_fin());
         caf.setHora_inicio(cafeteria.getHora_inicio());
         caf.setUbicacion(cafeteria.getUbicacion());
-        caf.setIdCafeteria(cafeteria.getIdCafeteria());
-        return service.save(cafeteria);
+        //caf.setIdCafeteria(cafeteria.getIdCafeteria());
+        return service.save(caf);
 
     }
 

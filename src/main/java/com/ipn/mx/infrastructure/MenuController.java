@@ -40,9 +40,9 @@ public class MenuController {
         m.setNombreProducto(menu.getNombreProducto());
         m.setPrecio(menu.getPrecio());
         m.setStock(menu.getStock());
-        m.setId_producto(menu.getId_producto());
+        //m.setId_producto(menu.getId_producto());
         m.setCafeteria(menu.getCafeteria());
-        return service.save(menu);
+        return service.save(m);
     }
 
     @DeleteMapping("/productos/{id}")

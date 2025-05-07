@@ -37,7 +37,7 @@ public class ReseniaController {
     @ResponseStatus(HttpStatus.CREATED)
     public Resenia update(@PathVariable Integer id, @RequestBody Resenia resenia){
         Resenia r = service.read(id);
-        r.setIdResena(resenia.getIdResena());
+       // r.setIdResena(resenia.getIdResena());
         r.setComentario(resenia.getComentario());
         r.setCalificacion(resenia.getCalificacion());
         r.setFecha(resenia.getFecha());
