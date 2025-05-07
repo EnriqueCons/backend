@@ -1,7 +1,6 @@
 package com.ipn.mx.infrastructure;
 
 import com.ipn.mx.domain.entity.Pedido;
-import com.ipn.mx.domain.repository.PedidoRepository;
 import com.ipn.mx.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
