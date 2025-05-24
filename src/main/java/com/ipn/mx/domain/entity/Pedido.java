@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +27,7 @@ public class Pedido implements Serializable {
     private String descripcion_producto;
 
     @Column(name = "pago_final", precision = 6, scale = 2, nullable = false)
-    private Double pago_final;
+    private BigDecimal pago_final;
 
     @ManyToOne
     @JoinColumn(name = "id_Comprador", nullable = false)

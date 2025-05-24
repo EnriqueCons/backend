@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +27,7 @@ public class Menu implements Serializable {
     private String nombreProducto;
 
     @Column(name = "precio", precision = 6, scale = 2, nullable = false)
-    private Double precio;
+    private BigDecimal precio;
 
     @Column(name = "stock")
     private int stock;
