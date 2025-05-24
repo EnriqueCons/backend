@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +16,10 @@ import java.util.Date;
 @Entity
 @Table(name = "QR")
 public class QR implements Serializable {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "qr_seq")
+    @SequenceGenerator(name = "qr_seq", sequenceName = "qr_seq", allocationSize = 1)
     @Column(name = "id_QR", nullable = false)
     private Integer id_QR;
 
@@ -28,9 +30,10 @@ public class QR implements Serializable {
     private int cantidadPuntos;
 
     @Column(name = "caducidad")
-    private Date caducidad;
+    private LocalDate caducidad;
 
     @ManyToOne
     @JoinColumn(name = "id_Comprador", nullable = false)
     private Comprador comprador;
+
 }

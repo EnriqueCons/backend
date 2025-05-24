@@ -15,8 +15,10 @@ import java.io.Serializable;
 @Entity
 @Table(name = "Recompensa")
 public class Recompensa implements Serializable {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "recompensa_seq")
+    @SequenceGenerator(name = "recompensa_seq", sequenceName = "recompensa_seq", allocationSize = 1)
     @Column(name = "id_recompensa", nullable = false)
     private Integer id_recompensa;
 
@@ -29,4 +31,5 @@ public class Recompensa implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_cafeteria", nullable = false)
     private Cafeteria cafeteria;
+
 }

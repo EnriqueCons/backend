@@ -15,8 +15,10 @@ import java.io.Serializable;
 @Entity
 @Table(name = "Menu")
 public class Menu implements Serializable {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "menu_seq")
+    @SequenceGenerator(name = "menu_seq", sequenceName = "menu_seq", allocationSize = 1)
     @Column(name = "id_producto", nullable = false)
     private Integer id_producto;
 
@@ -32,6 +34,5 @@ public class Menu implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_cafeteria", nullable = false)
     private Cafeteria cafeteria;
-
 
 }

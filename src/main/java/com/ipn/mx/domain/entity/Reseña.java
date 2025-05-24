@@ -20,7 +20,8 @@ import java.time.LocalDate;
 public class Reseña implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resena_seq")
+    @SequenceGenerator(name = "resena_seq", sequenceName = "resena_seq", allocationSize = 1)
     @Column(name = "id_resena", nullable = false)
     private Integer idResena;
 
@@ -42,6 +43,5 @@ public class Reseña implements Serializable {
     @ManyToOne
     @JoinColumn(name = "no_orden", nullable = false)
     private Pedido pedido;
-
 
 }

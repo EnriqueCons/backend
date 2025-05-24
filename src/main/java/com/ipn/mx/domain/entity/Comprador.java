@@ -1,6 +1,5 @@
 package com.ipn.mx.domain.entity;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -8,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 import java.io.Serializable;
 
@@ -21,7 +19,8 @@ import java.io.Serializable;
 public class Comprador implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comprador_seq")
+    @SequenceGenerator(name = "comprador_seq", sequenceName = "comprador_seq", allocationSize = 1)
     @Column(name = "id_Comprador", nullable = false)
     private Integer id_Comprador;
 

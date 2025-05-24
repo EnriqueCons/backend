@@ -18,7 +18,8 @@ import java.time.LocalTime;
 public class Cafeteria implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cafeteria_seq")
+    @SequenceGenerator(name = "cafeteria_seq", sequenceName = "cafeteria_seq", allocationSize = 1)
     @Column(name = "id_cafeteria", nullable = false)
     private Integer idCafeteria;
 

@@ -17,7 +17,8 @@ import java.io.Serializable;
 public class Pedido implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedido_seq")
+    @SequenceGenerator(name = "pedido_seq", sequenceName = "pedido_seq", allocationSize = 1)
     @Column(name = "no_orden", nullable = false)
     private Integer no_orden;
 
