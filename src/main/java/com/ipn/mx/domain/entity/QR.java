@@ -23,8 +23,19 @@ public class QR implements Serializable {
     @Column(name = "id_QR", nullable = false)
     private Integer id_QR;
 
-    @Column(name = "imagen", columnDefinition = "TEXT")
-    private String imagen;
+    @Column(nullable = false)
+    private String nombreArchivo;
+
+    @Column(nullable = false)
+    private String tipoArchivo;
+
+    private String urlArchivo;
+
+    @Lob
+    @Column(nullable = false)
+    private byte[] datosArchivo;
+
+
 
     @Column(name = "cantidadPuntos", nullable = false)
     private int cantidadPuntos;
