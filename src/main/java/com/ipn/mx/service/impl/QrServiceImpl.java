@@ -1,15 +1,22 @@
 package com.ipn.mx.service.impl;
 
+import com.ipn.mx.domain.entity.Comprador;
 import com.ipn.mx.domain.entity.QR;
+import com.ipn.mx.domain.repository.CompradorRepository;
 import com.ipn.mx.domain.repository.QrRepository;
+import com.ipn.mx.service.CompradorService;
 import com.ipn.mx.service.QrService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.nio.file.Files;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -18,7 +25,10 @@ public class QrServiceImpl implements QrService {
     @Autowired
     private QrRepository qrRepository;
 
-    //private final String URL_ARCHIVO = "/Users/enriquecontreras/Pictures/imagenes";
+    @Autowired
+    private CompradorService compradorService;
+
+    private final String URL_ARCHIVO = "/Users/enriquecontreras/Pictures/imagenes";
 
     @Override
     @Transactional(readOnly = true)
@@ -35,21 +45,29 @@ public class QrServiceImpl implements QrService {
 
     @Override
     @Transactional
-    public QR save(MultipartFile file) throws IOException {
+    public String save(MultipartFile file, int cantidadPuntos, String caducidad, Comprador idComprador) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("El archivo está vacío");
         }
 
-        QR qr = QR.builder()
+        String ruta_archivo = URL_ARCHIVO + file.getOriginalFilename();
+        QR qr = QR.
+                builder()
                 .nombreArchivo(file.getOriginalFilename())
                 .tipoArchivo(file.getContentType())
                 .datosArchivo(file.getBytes())
+                .urlArchivo(ruta_archivo)
+                .cantidadPuntos(cantidadPuntos)
+                .caducidad(LocalDate.parse(caducidad))
+                .comprador(idComprador)
                 .build();
 
-        QR savedQr = qrRepository.save(qr);
-        log.info("QR guardado: {}", qr.getNombreArchivo());
-
-        return savedQr;
+        qrRepository.save(qr);
+        file.transferTo(new File(ruta_archivo));
+        if (qr.getId_QR() != null) {
+            return "Archivo almacenado satisfactoriamente";
+        }
+        return null;
     }
 
     @Override
@@ -57,6 +75,28 @@ public class QrServiceImpl implements QrService {
     public QR save(QR qr) {
         return qrRepository.save(qr);
     }
+
+    @Override
+    @Transactional
+    public QR update(Integer id, int nuevaCantidadPuntos, String nuevaCaducidad) {
+        QR qrExistente = qrRepository.findById(id).orElse(null);
+        if (qrExistente == null) {
+            throw new RuntimeException("QR con ID " + id + " no encontrado.");
+        }
+
+        LocalDate fecha;
+        try {
+            fecha = LocalDate.parse(nuevaCaducidad);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Formato de fecha inválido. Usa yyyy-MM-dd");
+        }
+
+        qrExistente.setCantidadPuntos(nuevaCantidadPuntos);
+        qrExistente.setCaducidad(fecha);
+
+        return qrRepository.save(qrExistente);
+    }
+
 
     @Override
     @Transactional
