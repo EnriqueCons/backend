@@ -5,8 +5,10 @@ import com.ipn.mx.service.CompradorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = {"*"})
 @RestController
@@ -15,6 +17,34 @@ public class CompradorController {
 
     @Autowired
     private CompradorService service;
+
+    @PostMapping("/comprador/recuperar")
+    @ResponseStatus(HttpStatus.OK)
+    public String recuperarContrasena(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        service.enviarCorreoRecuperacion(email);
+        return "Si el correo está registrado, se enviará un enlace de recuperación.";
+    }
+
+    @GetMapping("/comprador/validar-token")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean validarToken(@RequestParam("token") String token) {
+        return service.validarToken(token);
+    }
+
+    @PostMapping("/comprador/restablecer")
+    @ResponseStatus(HttpStatus.OK)
+    public String restablecerContrasena(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String nuevaContrasena = request.get("nuevaContrasena");
+
+        if (service.validarToken(token)) {
+            service.actualizarContrasena(token, nuevaContrasena);
+            return "Contraseña actualizada con éxito.";
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido o expirado.");
+        }
+    }
 
     // Obtener todos los compradores
     @GetMapping("/compradores")
