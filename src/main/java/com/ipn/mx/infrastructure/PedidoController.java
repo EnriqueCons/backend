@@ -1,11 +1,18 @@
 package com.ipn.mx.infrastructure;
 
+import com.ipn.mx.domain.entity.Cafeteria;
 import com.ipn.mx.domain.entity.Pedido;
 import com.ipn.mx.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,6 +23,8 @@ public class PedidoController {
 
     @Autowired
     private PedidoService service;
+    @Autowired
+    private PedidoService pedidoService;
 
     // Obtener todos los pedidos
     @GetMapping("/pedidos")
@@ -87,5 +96,16 @@ public class PedidoController {
         if (pedido.getCafeteria() == null || pedido.getCafeteria().getIdCafeteria() == null) {
             throw new RuntimeException("El pedido debe estar asociado a una cafetería.");
         }
+    }
+
+    //PDF
+    @GetMapping("/{id}/ticket")
+    public ResponseEntity<InputStreamResource> generarPDF(@PathVariable Integer id) {
+        Pedido pedido = pedidoService.findById(id);
+        ByteArrayInputStream stream = pedidoService.reportePDF(pedido);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition","inline; filename=Pedido.pdf");
+        return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(stream));
     }
 }
