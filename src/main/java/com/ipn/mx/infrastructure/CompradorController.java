@@ -1,6 +1,9 @@
 package com.ipn.mx.infrastructure;
 
+import com.ipn.mx.domain.entity.Cafeteria;
 import com.ipn.mx.domain.entity.Comprador;
+import com.ipn.mx.domain.repository.CafeteriaRepository;
+import com.ipn.mx.domain.repository.CompradorRepository;
 import com.ipn.mx.service.CompradorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin(origins = {"*"})
 @RestController
@@ -17,21 +21,35 @@ public class CompradorController {
 
     @Autowired
     private CompradorService service;
+    @Autowired
+    private CompradorRepository compradorRepository;
 
+    // Enviar correo para recuperar la contraseña
     @PostMapping("/comprador/recuperar")
     @ResponseStatus(HttpStatus.OK)
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+
+
+        // Exception para cuando no exista el correo dentro de la tabla cafeteria
+        Optional<Comprador> opt = compradorRepository.findByCorreo(email);
+        if (opt.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "El correo no está registrado en ningun comprador");
+        }
+
         service.enviarCorreoRecuperacion(email);
-        return "Si el correo está registrado, se enviará un enlace de recuperación.";
+        return "Se ha enviado un enlace de recuperación al correo registrado.";
     }
 
+    //Validar el token
     @GetMapping("/comprador/validar-token")
     @ResponseStatus(HttpStatus.OK)
     public boolean validarToken(@RequestParam("token") String token) {
         return service.validarToken(token);
     }
 
+    //Restablecer la nueva contraseña
     @PostMapping("/comprador/restablecer")
     @ResponseStatus(HttpStatus.OK)
     public String restablecerContrasena(@RequestBody Map<String, String> request) {
@@ -45,6 +63,8 @@ public class CompradorController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido o expirado.");
         }
     }
+
+
 
     // Obtener todos los compradores
     @GetMapping("/compradores")

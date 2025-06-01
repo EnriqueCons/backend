@@ -9,4 +9,8 @@ public interface CafeteriaService {
     public Cafeteria read(Integer id);
     public Cafeteria save(Cafeteria cafeteria);
     public void delete(Integer id);
+
+    void enviarCorreoRecuperacion(String email);
+    boolean validarToken(String token);
+    void actualizarContrasena(String token, String nuevaContrasena);
 }
