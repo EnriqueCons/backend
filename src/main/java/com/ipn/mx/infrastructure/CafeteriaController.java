@@ -34,10 +34,10 @@ public class CafeteriaController {
         return cafeteria;
     }
 
-    // Crear nueva cafetería
+    // Crear nueva cafetería{
     @PostMapping("/cafeterias")
     @ResponseStatus(HttpStatus.CREATED)
-    public Cafeteria create(@RequestBody Cafeteria cafeteria) {
+    public Cafeteria save(@RequestBody Cafeteria cafeteria) {
         if (cafeteria.getNombre() == null || cafeteria.getNombre().isBlank()) {
             throw new RuntimeException("El nombre de la cafetería es obligatorio.");
         }

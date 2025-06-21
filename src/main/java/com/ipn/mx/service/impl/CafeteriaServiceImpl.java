@@ -20,7 +20,8 @@ public class CafeteriaServiceImpl implements CafeteriaService {
 
     @Override
     @Transactional(readOnly = true)
-    public Cafeteria read(Integer id) { return cafeteriaRepository.findById(id).orElse(null); }
+    public Cafeteria read(Integer id) {
+        return cafeteriaRepository.findById(id).orElse(null); }
 
     @Override
     @Transactional
@@ -28,5 +29,6 @@ public class CafeteriaServiceImpl implements CafeteriaService {
 
     @Override
     @Transactional
-    public void delete(Integer id) { this.cafeteriaRepository.deleteById(id); }
+    public void delete(Integer id) {
+        cafeteriaRepository.deleteById(id); }
 }
