@@ -9,5 +9,8 @@ public interface CompradorService {
     public Comprador read(Integer id);
     public Comprador save(Comprador comprador);
     public void delete(Integer id);
+    void enviarCorreoRecuperacion(String email);
+    boolean validarToken(String token);
+    void actualizarContrasena(String token, String nuevaContrasena);
 
 }

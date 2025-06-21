@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -40,5 +41,13 @@ public class Comprador implements Serializable {
 
     @Column(name = "contrasenia", length = 100, nullable = false)
     private String contrasenia;
+
+    @Column(name = "token_recuperacion", length = 100)
+    private String tokenRecuperacion;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "fecha_expiracion_token")
+    private Date fechaExpiracionToken;
+
 
 }

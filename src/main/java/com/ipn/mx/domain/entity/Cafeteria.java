@@ -1,6 +1,8 @@
 package com.ipn.mx.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -34,5 +37,25 @@ public class Cafeteria implements Serializable {
 
     @Column(name = "hora_fin", nullable = false)
     private LocalTime hora_fin;
+
+
+    // Agregando el correo y la contraseña para darles acceso al sistema
+    @Column(name = "correo", length = 100, nullable = false, unique = true)
+    @Email(message = "El e-mail debe ser un e-mail válido")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@(alumno\\.ipn\\.mx|gmail\\.com)$",
+            message = "El e-mail debe cumplir con la expresión regular")
+    private String correo;
+
+    @Column(name = "contrasenia", length = 100, nullable = false)
+    private String contrasenia;
+
+
+    //Agregando tokens para lo de la recuperación de la contraseña
+    @Column(name = "token_recuperacion", length = 100)
+    private String tokenRecuperacion;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "fecha_expiracion_token")
+    private Date fechaExpiracionToken;
 
 }
