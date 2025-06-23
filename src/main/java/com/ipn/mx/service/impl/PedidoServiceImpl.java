@@ -101,4 +101,10 @@ public class PedidoServiceImpl implements PedidoService {
 
         return new ByteArrayInputStream(out.toByteArray());
     }
+
+    @Override
+    public List<Pedido> findPedidosByCompradorId(Integer idComprador) {
+        return pedidoRepository.findPedidosByCompradorId(idComprador);
+    }
+
 }

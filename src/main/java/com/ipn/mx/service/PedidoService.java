@@ -14,4 +14,5 @@ public interface PedidoService {
 
     public Pedido findById(Integer id);
     ByteArrayInputStream reportePDF(Pedido pedido);
+    public List<Pedido> findPedidosByCompradorId(Integer idComprador);
 }

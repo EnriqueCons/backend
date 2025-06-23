@@ -1,5 +1,7 @@
 package com.ipn.mx.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -31,10 +34,15 @@ public class Pedido implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "id_Comprador", nullable = false)
+    @JsonBackReference
     private Comprador comprador;
 
     @ManyToOne
     @JoinColumn(name = "id_cafeteria", nullable = false)
     private Cafeteria cafeteria;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<DetallePedido> detalles;
 
 }
