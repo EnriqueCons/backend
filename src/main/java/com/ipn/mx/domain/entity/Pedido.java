@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -29,6 +30,9 @@ public class Pedido implements Serializable {
     @Column(name = "descripcion_producto", columnDefinition = "TEXT")
     private String descripcion_producto;
 
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
     @Column(name = "pago_final", precision = 6, scale = 2, nullable = false)
     private BigDecimal pago_final;
 
@@ -44,5 +48,10 @@ public class Pedido implements Serializable {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DetallePedido> detalles;
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaCreacion = LocalDateTime.now();
+    }
 
 }
