@@ -17,7 +17,7 @@ public class MenuController {
 
     @Autowired
     private MenuService service;
-
+    @Autowired
     private CafeteriaService cafeteriaService;
 
     // Obtener todos los productos del menú

@@ -123,6 +123,8 @@ public class CafeteriaController {
         caf.setHora_fin(cafeteria.getHora_fin());
         caf.setHora_inicio(cafeteria.getHora_inicio());
         caf.setUbicacion(cafeteria.getUbicacion());
+        caf.setCorreo(cafeteria.getCorreo());
+        caf.setContrasenia(cafeteria.getContrasenia());
 
         return service.save(caf);
     }
