@@ -6,7 +6,9 @@ import com.ipn.mx.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -37,4 +39,20 @@ public class MenuServiceImpl implements MenuService {
     public void delete(Integer id) {
         menuRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public String saveWithImage(MultipartFile imagen, Menu menu) throws IOException {
+        if (imagen.isEmpty()) {
+            throw new IllegalArgumentException("La imagen está vacía.");
+        }
+
+        menu.setNombreImagen(imagen.getOriginalFilename());
+        menu.setTipoImagen(imagen.getContentType());
+        menu.setDatosImagen(imagen.getBytes());
+
+        menuRepository.save(menu);
+        return "Producto y su imagen almacenados correctamente.";
+    }
+
 }

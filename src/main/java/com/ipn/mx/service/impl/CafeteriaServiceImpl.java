@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.IOException;
+
+
 @Service
 public class CafeteriaServiceImpl implements CafeteriaService {
     @Autowired
@@ -99,4 +104,22 @@ public class CafeteriaServiceImpl implements CafeteriaService {
     @Transactional
     public void delete(Integer id) {
         cafeteriaRepository.deleteById(id); }
+
+    @Override
+    @Transactional
+    public String saveWithImage(MultipartFile imagen, Cafeteria cafeteria) throws IOException {
+        if (imagen.isEmpty()) {
+            throw new IllegalArgumentException("La imagen está vacía.");
+        }
+
+        cafeteria.setNombreImagen(imagen.getOriginalFilename());
+        cafeteria.setTipoImagen(imagen.getContentType());
+        cafeteria.setDatosImagen(imagen.getBytes());
+
+        cafeteriaRepository.save(cafeteria);
+        return "Imagen y cafetería almacenadas correctamente.";
+    }
+
+
+
 }

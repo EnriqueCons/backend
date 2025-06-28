@@ -5,8 +5,12 @@ import com.ipn.mx.service.CafeteriaService;
 import com.ipn.mx.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -17,6 +21,7 @@ public class MenuController {
 
     @Autowired
     private MenuService service;
+
     @Autowired
     private CafeteriaService cafeteriaService;
 
@@ -38,32 +43,7 @@ public class MenuController {
         return menu;
     }
 
-    // Crear un nuevo producto
-    @PostMapping("/productos")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Menu create(@RequestBody Menu menu) {
-        validarMenu(menu);
-        return service.save(menu);
-    }
 
-    // Actualizar producto existente
-    @PutMapping("/productos/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Menu update(@PathVariable Integer id, @RequestBody Menu menu) {
-        Menu m = service.read(id);
-        if (m == null) {
-            throw new RuntimeException("No se puede actualizar: Producto con ID " + id + " no existe.");
-        }
-
-        validarMenu(menu);
-
-        m.setNombreProducto(menu.getNombreProducto());
-        m.setPrecio(menu.getPrecio());
-        m.setStock(menu.getStock());
-        m.setCafeteria(menu.getCafeteria());
-
-        return service.save(m);
-    }
 
     // Eliminar producto
     @DeleteMapping("/productos/{id}")
@@ -76,6 +56,73 @@ public class MenuController {
         service.delete(id);
     }
 
+    // Crear producto con imagen
+    @PostMapping(value = "/productos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> create(
+            @RequestParam("imagen") MultipartFile imagen,
+            @RequestParam("nombreProducto") String nombreProducto,
+            @RequestParam("precio") String precioStr,
+            @RequestParam("stock") String stockStr,
+            @RequestParam("idCafeteria") String idCafeteriaStr
+    ) throws IOException {
+        BigDecimal precio = new BigDecimal(precioStr);
+        Integer stock = Integer.parseInt(stockStr);
+        Integer idCafeteria = Integer.parseInt(idCafeteriaStr);
+
+        Menu menu = Menu.builder()
+                .nombreProducto(nombreProducto)
+                .precio(precio)
+                .stock(stock)
+                .cafeteria(cafeteriaService.read(idCafeteria))
+                .build();
+
+        validarMenu(menu);
+        String respuesta = service.saveWithImage(imagen, menu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+
+    // Actualizar producto con imagen
+    @PutMapping(value = "/productos/{id}", consumes = "multipart/form-data")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> update(
+            @PathVariable Integer id,
+            @RequestPart("imagen") MultipartFile imagen,
+            @RequestPart("nombreProducto") String nombreProducto,
+            @RequestPart("precio") BigDecimal precio,
+            @RequestPart("stock") Integer stock,
+            @RequestPart("idCafeteria") Integer idCafeteria
+    ) throws IOException {
+        Menu existente = service.read(id);
+        if (existente == null) {
+            throw new RuntimeException("No se puede actualizar: Producto con ID " + id + " no existe.");
+        }
+
+        existente.setNombreProducto(nombreProducto);
+        existente.setPrecio(precio);
+        existente.setStock(stock);
+        existente.setCafeteria(cafeteriaService.read(idCafeteria));
+
+        validarMenu(existente);
+        String respuesta = service.saveWithImage(imagen, existente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    // Obtener imagen del producto
+    @GetMapping("/productos/{id}/imagen")
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable Integer id) {
+        Menu menu = service.read(id);
+        if (menu == null || menu.getDatosImagen() == null) {
+            throw new RuntimeException("Imagen no encontrada para este producto.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", menu.getTipoImagen())
+                .body(menu.getDatosImagen());
+    }
+
+    // Validar campos del producto
     private void validarMenu(Menu menu) {
         if (menu.getNombreProducto() == null || menu.getNombreProducto().isBlank()) {
             throw new RuntimeException("El nombre del producto es obligatorio.");
@@ -96,7 +143,4 @@ public class MenuController {
             throw new RuntimeException("La cafetería con ID " + menu.getCafeteria().getIdCafeteria() + " no existe.");
         }
     }
-
-
-
 }

@@ -36,4 +36,12 @@ public class Menu implements Serializable {
     @JoinColumn(name = "id_cafeteria", nullable = false)
     private Cafeteria cafeteria;
 
+    @Column(name = "nombreImagen")
+    private String nombreImagen;
+
+    @Column(name = "tipoImagen")
+    private String tipoImagen;
+
+    @Column(name = "datosImagen", columnDefinition = "bytea")
+    private byte[] datosImagen;
 }

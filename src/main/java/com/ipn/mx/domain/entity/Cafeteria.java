@@ -38,8 +38,6 @@ public class Cafeteria implements Serializable {
     @Column(name = "hora_fin", nullable = false)
     private LocalTime hora_fin;
 
-
-    // Agregando el correo y la contraseña para darles acceso al sistema
     @Column(name = "correo", length = 100, nullable = false, unique = true)
     @Email(message = "El e-mail debe ser un e-mail válido")
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@(alumno\\.ipn\\.mx|gmail\\.com)$",
@@ -49,8 +47,6 @@ public class Cafeteria implements Serializable {
     @Column(name = "contrasenia", length = 100, nullable = false)
     private String contrasenia;
 
-
-    //Agregando tokens para lo de la recuperación de la contraseña
     @Column(name = "token_recuperacion", length = 100)
     private String tokenRecuperacion;
 
@@ -58,4 +54,12 @@ public class Cafeteria implements Serializable {
     @Column(name = "fecha_expiracion_token")
     private Date fechaExpiracionToken;
 
+    @Column(name = "nombre_imagen")
+    private String nombreImagen;
+
+    @Column(name = "tipo_imagen")
+    private String tipoImagen;
+
+    @Column(name = "datos_imagen")
+    private byte[] datosImagen;
 }

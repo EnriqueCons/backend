@@ -5,10 +5,15 @@ import com.ipn.mx.domain.repository.CafeteriaRepository;
 import com.ipn.mx.service.CafeteriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.Map;
+
+import java.io.IOException;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = {"*"})
@@ -18,43 +23,36 @@ public class CafeteriaController {
 
     @Autowired
     private CafeteriaService service;
+
     @Autowired
     private CafeteriaRepository cafeteriaRepository;
-
 
     // Enviar correo para recuperar la contraseña
     @PostMapping("/cafeterias/recuperar")
     @ResponseStatus(HttpStatus.OK)
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-
-
-        // Exception para cuando no exista el correo dentro de la tabla cafeteria
         Optional<Cafeteria> opt = cafeteriaRepository.findByCorreo(email);
         if (opt.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "El correo no está registrado en ninguna cafetería");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El correo no está registrado en ninguna cafetería");
         }
-
         service.enviarCorreoRecuperacion(email);
         return "Se ha enviado un enlace de recuperación al correo registrado.";
     }
 
-
-    //Validar el token
+    // Validar token
     @GetMapping("/cafeterias/validar-token")
     @ResponseStatus(HttpStatus.OK)
     public boolean validarToken(@RequestParam("token") String token) {
         return service.validarToken(token);
     }
 
-    //Restablecer la nueva contraseña
+    // Restablecer contraseña
     @PostMapping("/cafeterias/restablecer")
     @ResponseStatus(HttpStatus.OK)
     public String restablecerContrasena(@RequestBody Map<String, String> request) {
         String token = request.get("token");
         String nuevaContrasena = request.get("nuevaContrasena");
-
         if (service.validarToken(token)) {
             service.actualizarContrasena(token, nuevaContrasena);
             return "Contraseña actualizada con éxito.";
@@ -62,8 +60,6 @@ public class CafeteriaController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido o expirado.");
         }
     }
-
-
 
     // Obtener todas las cafeterías
     @GetMapping("/cafeterias")
@@ -83,60 +79,82 @@ public class CafeteriaController {
         return cafeteria;
     }
 
-    // Crear nueva cafetería{
-    @PostMapping("/cafeterias")
+    // Crear nueva cafetería con imagen
+    @PostMapping(value = "/cafeterias", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public Cafeteria save(@RequestBody Cafeteria cafeteria) {
-        if (cafeteria.getNombre() == null || cafeteria.getNombre().isBlank()) {
-            throw new RuntimeException("El nombre de la cafetería es obligatorio.");
-        }
-        if (cafeteria.getUbicacion() == null || cafeteria.getUbicacion().isBlank()) {
-            throw new RuntimeException("La ubicación es obligatoria.");
-        }
-        if (cafeteria.getHora_inicio() == null || cafeteria.getHora_fin() == null) {
-            throw new RuntimeException("Las horas de inicio y fin son obligatorias.");
-        }
+    public ResponseEntity<String> save(
+            @RequestPart("imagen") MultipartFile imagen,
+            @RequestPart("nombre") String nombre,
+            @RequestPart("ubicacion") String ubicacion,
+            @RequestPart("horaInicio") String horaInicio,
+            @RequestPart("horaFin") String horaFin,
+            @RequestPart("correo") String correo,
+            @RequestPart("contrasenia") String contrasenia
+    ) throws IOException {
+        Cafeteria cafeteria = Cafeteria.builder()
+                .nombre(nombre)
+                .ubicacion(ubicacion)
+                .hora_inicio(LocalTime.parse(horaInicio))
+                .hora_fin(LocalTime.parse(horaFin))
+                .correo(correo)
+                .contrasenia(contrasenia)
+                .build();
 
-        return service.save(cafeteria);
+        String respuesta = service.saveWithImage(imagen, cafeteria);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
-    // Actualizar cafetería existente
-    @PutMapping("/cafeterias/{id}")
+    // Actualizar cafetería con imagen
+    @PutMapping(value = "/cafeterias" +
+            "/{id}", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public Cafeteria update(@RequestBody Cafeteria cafeteria, @PathVariable Integer id) {
-        Cafeteria caf = service.read(id);
-        if (caf == null) {
+    public ResponseEntity<String> update(
+            @PathVariable Integer id,
+            @RequestPart("imagen") MultipartFile imagen,
+            @RequestPart("nombre") String nombre,
+            @RequestPart("ubicacion") String ubicacion,
+            @RequestPart("horaInicio") String horaInicio,
+            @RequestPart("horaFin") String horaFin,
+            @RequestPart("correo") String correo,
+            @RequestPart("contrasenia") String contrasenia
+    ) throws IOException {
+        Cafeteria existente = service.read(id);
+        if (existente == null) {
             throw new RuntimeException("No se puede actualizar: Cafetería con ID " + id + " no existe.");
         }
 
-        if (cafeteria.getNombre() == null || cafeteria.getNombre().isBlank()) {
-            throw new RuntimeException("El nombre de la cafetería es obligatorio.");
-        }
-        if (cafeteria.getUbicacion() == null || cafeteria.getUbicacion().isBlank()) {
-            throw new RuntimeException("La ubicación es obligatoria.");
-        }
-        if (cafeteria.getHora_inicio() == null || cafeteria.getHora_fin() == null) {
-            throw new RuntimeException("Las horas de inicio y fin son obligatorias.");
-        }
+        existente.setNombre(nombre);
+        existente.setUbicacion(ubicacion);
+        existente.setHora_inicio(LocalTime.parse(horaInicio));
+        existente.setHora_fin(LocalTime.parse(horaFin));
+        existente.setCorreo(correo);
+        existente.setContrasenia(contrasenia);
 
-        caf.setNombre(cafeteria.getNombre());
-        caf.setHora_fin(cafeteria.getHora_fin());
-        caf.setHora_inicio(cafeteria.getHora_inicio());
-        caf.setUbicacion(cafeteria.getUbicacion());
-        caf.setCorreo(cafeteria.getCorreo());
-        caf.setContrasenia(cafeteria.getContrasenia());
-
-        return service.save(caf);
+        String respuesta = service.saveWithImage(imagen, existente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     // Eliminar cafetería
     @DeleteMapping("/cafeterias/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
-        Cafeteria caf = service.read(id);
-        if (caf == null) {
+        Cafeteria cafeteria = service.read(id);
+        if (cafeteria == null) {
             throw new RuntimeException("No se puede eliminar: Cafetería con ID " + id + " no existe.");
         }
         service.delete(id);
+    }
+
+    // Obtener imagen de una cafetería
+    @GetMapping("/cafeterias/{id}/imagen")
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable Integer id) {
+        Cafeteria cafeteria = service.read(id);
+        if (cafeteria == null || cafeteria.getDatosImagen() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imagen no encontrada para esta cafetería.");
+        }
+
+        return ResponseEntity.ok()
+                .header("Content-Type", cafeteria.getTipoImagen())
+                .body(cafeteria.getDatosImagen());
     }
 }
