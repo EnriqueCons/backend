@@ -29,6 +29,9 @@ public class Menu implements Serializable {
     @Column(name = "precio", precision = 6, scale = 2, nullable = false)
     private BigDecimal precio;
 
+    @Column(name = "precioPuntos", nullable = false)
+    private int precioPuntos; // Nueva columna
+
     @Column(name = "stock")
     private int stock;
 

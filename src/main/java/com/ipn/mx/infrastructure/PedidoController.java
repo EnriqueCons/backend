@@ -1,48 +1,32 @@
 package com.ipn.mx.infrastructure;
 
-import com.ipn.mx.domain.entity.Cafeteria;
-import com.ipn.mx.domain.entity.DetallePedido;
 import com.ipn.mx.domain.entity.Pedido;
 import com.ipn.mx.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 @CrossOrigin(origins = {"*"})
 @RestController
-@RequestMapping("/apiPedido")
+@RequestMapping("/apiPedidos")
 public class PedidoController {
 
     @Autowired
     private PedidoService service;
-    @Autowired
-    private PedidoService pedidoService;
-
-    // Obtener pedidos por ID de comprador
-    @GetMapping("/pedidos/comprador/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Pedido> obtenerPedidosPorComprador(@PathVariable Integer id) {
-        return service.findPedidosByCompradorId(id);
-    }
 
     // Obtener todos los pedidos
-    @GetMapping("/pedidos")
+    @GetMapping("/pedido")
     @ResponseStatus(HttpStatus.OK)
     public List<Pedido> readAll() {
         return service.readAll();
     }
 
     // Obtener un pedido por ID
-    @GetMapping("/pedidos/{id}")
+    @GetMapping("/pedido/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Pedido read(@PathVariable Integer id) {
         Pedido pedido = service.read(id);
@@ -52,52 +36,32 @@ public class PedidoController {
         return pedido;
     }
 
-    @PostMapping("/pedidos")
+    // Crear un nuevo pedido
+    @PostMapping("/pedido")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido create(@RequestBody Pedido pedido) {
-        validarPedido(pedido);
-
-        // Extraer y desconectar los detalles antes de guardar el pedido
-        List<DetallePedido> detalles = pedido.getDetalles();
-        pedido.setDetalles(null); // evita guardar detalles con pedido null
-
-        // 1. Guardar el pedido sin detalles (esto genera el no_orden)
-        Pedido pedidoGuardado = service.save(pedido);
-
-        // 2. Asociar el pedido ya guardado a cada detalle
-        for (DetallePedido detalle : detalles) {
-            detalle.setPedido(pedidoGuardado);
-        }
-
-        // 3. Asignar los detalles al pedido guardado
-        pedidoGuardado.setDetalles(detalles);
-
-        // 4. Volver a guardar para persistir los detalles (asumiendo cascada)
-        return service.save(pedidoGuardado);
+        return service.save(pedido);
     }
 
-
-    // Actualizar pedido
-    @PutMapping("/pedidos/{id}")
+    // Actualizar un pedido existente
+    @PutMapping("/pedido/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido update(@PathVariable Integer id, @RequestBody Pedido pedido) {
-        Pedido p = service.read(id);
-        if (p == null) {
+        Pedido existente = service.read(id);
+        if (existente == null) {
             throw new RuntimeException("No se puede actualizar: Pedido con ID " + id + " no existe.");
         }
-
-        validarPedido(pedido);
-
-        p.setDescripcion_producto(pedido.getDescripcion_producto());
-        p.setPago_final(pedido.getPago_final());
-        p.setComprador(pedido.getComprador());
-        p.setCafeteria(pedido.getCafeteria());
-
-        return service.save(p);
+        // Actualiza los campos necesarios
+        existente.setDescripcion_producto(pedido.getDescripcion_producto());
+        existente.setPago_final(pedido.getPago_final());
+        existente.setCafeteria(pedido.getCafeteria());
+        existente.setComprador(pedido.getComprador());
+        existente.setDetalles(pedido.getDetalles());
+        return service.save(existente);
     }
 
-    // Eliminar pedido
-    @DeleteMapping("/pedidos/{id}")
+    // Eliminar un pedido
+    @DeleteMapping("/pedido/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         Pedido pedido = service.read(id);
@@ -107,30 +71,24 @@ public class PedidoController {
         service.delete(id);
     }
 
-    // Validaciones básicas
-    private void validarPedido(Pedido pedido) {
-        if (pedido.getDescripcion_producto() == null || pedido.getDescripcion_producto().isBlank()) {
-            throw new RuntimeException("La descripción del producto es obligatoria.");
+    // Generar y descargar el PDF del ticket del pedido
+    @GetMapping("/pedido/{id}/ticket")
+    public ResponseEntity<byte[]> descargarTicket(@PathVariable Integer id) {
+        Pedido pedido = service.read(id);
+        if (pedido == null) {
+            throw new RuntimeException("Pedido no encontrado con ID: " + id);
         }
-        if (pedido.getPago_final() == null || pedido.getPago_final().compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("El pago final debe ser mayor o igual a 0.");
-        }
-        if (pedido.getComprador() == null || pedido.getComprador().getId_Comprador() == null) {
-            throw new RuntimeException("El pedido debe tener un comprador válido.");
-        }
-        if (pedido.getCafeteria() == null || pedido.getCafeteria().getIdCafeteria() == null) {
-            throw new RuntimeException("El pedido debe estar asociado a una cafetería.");
-        }
+        ByteArrayInputStream pdfStream = service.reportePDF(pedido);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=ticket_pedido_" + id + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdfStream.readAllBytes());
     }
 
-    //PDF
-    @GetMapping("/{id}/ticket")
-    public ResponseEntity<InputStreamResource> generarPDF(@PathVariable Integer id) {
-        Pedido pedido = pedidoService.findById(id);
-        ByteArrayInputStream stream = pedidoService.reportePDF(pedido);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition","inline; filename=Pedido.pdf");
-        return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(stream));
+    // Obtener pedidos por id de comprador
+    @GetMapping("/pedido/comprador/{idComprador}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Pedido> findPedidosByCompradorId(@PathVariable Integer idComprador) {
+        return service.findPedidosByCompradorId(idComprador);
     }
 }

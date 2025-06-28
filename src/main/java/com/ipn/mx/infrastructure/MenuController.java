@@ -43,8 +43,6 @@ public class MenuController {
         return menu;
     }
 
-
-
     // Eliminar producto
     @DeleteMapping("/productos/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -63,16 +61,19 @@ public class MenuController {
             @RequestParam("imagen") MultipartFile imagen,
             @RequestParam("nombreProducto") String nombreProducto,
             @RequestParam("precio") String precioStr,
+            @RequestParam("precioPuntos") String precioPuntosStr,
             @RequestParam("stock") String stockStr,
             @RequestParam("idCafeteria") String idCafeteriaStr
     ) throws IOException {
         BigDecimal precio = new BigDecimal(precioStr);
+        Integer precioPuntos = Integer.parseInt(precioPuntosStr);
         Integer stock = Integer.parseInt(stockStr);
         Integer idCafeteria = Integer.parseInt(idCafeteriaStr);
 
         Menu menu = Menu.builder()
                 .nombreProducto(nombreProducto)
                 .precio(precio)
+                .precioPuntos(precioPuntos)
                 .stock(stock)
                 .cafeteria(cafeteriaService.read(idCafeteria))
                 .build();
@@ -82,7 +83,6 @@ public class MenuController {
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
-
     // Actualizar producto con imagen
     @PutMapping(value = "/productos/{id}", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
@@ -91,6 +91,7 @@ public class MenuController {
             @RequestPart("imagen") MultipartFile imagen,
             @RequestPart("nombreProducto") String nombreProducto,
             @RequestPart("precio") BigDecimal precio,
+            @RequestPart("precioPuntos") Integer precioPuntos,
             @RequestPart("stock") Integer stock,
             @RequestPart("idCafeteria") Integer idCafeteria
     ) throws IOException {
@@ -101,6 +102,7 @@ public class MenuController {
 
         existente.setNombreProducto(nombreProducto);
         existente.setPrecio(precio);
+        existente.setPrecioPuntos(precioPuntos);
         existente.setStock(stock);
         existente.setCafeteria(cafeteriaService.read(idCafeteria));
 
@@ -130,6 +132,10 @@ public class MenuController {
 
         if (menu.getPrecio() == null || menu.getPrecio().compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("El precio debe ser mayor o igual a 0.");
+        }
+
+        if (menu.getPrecioPuntos() < 0) {
+            throw new RuntimeException("El precio en puntos no puede ser negativo.");
         }
 
         if (menu.getStock() < 0) {

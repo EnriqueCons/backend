@@ -6,16 +6,13 @@ import com.ipn.mx.service.CompradorService;
 import com.ipn.mx.service.QrService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = {"*"})
 @RestController
@@ -28,13 +25,11 @@ public class QrController {
     @Autowired
     private CompradorService compradorService;
 
-
     @GetMapping("/qr")
     @ResponseStatus(HttpStatus.OK)
     public List<QR> readAll() throws IOException {
         return service.readAll();
     }
-
 
     @GetMapping("/qr/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -46,17 +41,18 @@ public class QrController {
         return qr;
     }
 
-    // Crear QR con datos + archivo
-    @PostMapping(value = "/qr/full", consumes = "multipart/form-data")
+    // Crear QR solo con datos (sin imagen)
+    @PostMapping("/qr")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> createQrWithFileAndData(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("cantidadPuntos") int cantidadPuntos,
-            @RequestParam("caducidad") String caducidad,
-            @RequestParam("idComprador") Comprador idComprador
-    ) throws IOException {
-
-        String respuesta = service.save(file, cantidadPuntos, caducidad, idComprador);
+    public ResponseEntity<String> createQr(@RequestBody Map<String, Object> payload) throws IOException {
+        int cantidadPuntos = (int) payload.get("cantidadPuntos");
+        String caducidad = (String) payload.get("caducidad");
+        Integer idCompradorInt = (Integer) payload.get("idComprador");
+        Comprador idComprador = compradorService.read(idCompradorInt);
+        if (idComprador == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comprador no encontrado");
+        }
+        String respuesta = service.save(cantidadPuntos, caducidad, idComprador);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
@@ -64,13 +60,14 @@ public class QrController {
     @ResponseStatus(HttpStatus.CREATED)
     public QR update(
             @PathVariable Integer id,
-            @RequestParam("cantidadPuntos") int cantidadPuntos,
-            @RequestParam("caducidad") String caducidad
+            @RequestBody Map<String, Object> payload
     ) {
         QR qr1 = service.read(id);
         if (qr1 == null) {
             throw new RuntimeException("QR no encontrado con ID: " + id);
         }
+        int cantidadPuntos = (int) payload.get("cantidadPuntos");
+        String caducidad = (String) payload.get("caducidad");
         qr1.setCantidadPuntos(cantidadPuntos);
         try {
             qr1.setCaducidad(LocalDate.parse(caducidad));

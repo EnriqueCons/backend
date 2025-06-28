@@ -23,20 +23,6 @@ public class QR implements Serializable {
     @Column(name = "id_QR", nullable = false)
     private Integer id_QR;
 
-    @Column(nullable = false)
-    private String nombreArchivo;
-
-    @Column(nullable = false)
-    private String tipoArchivo;
-
-    private String urlArchivo;
-
-    @Lob
-    @Column(nullable = false)
-    private byte[] datosArchivo;
-
-
-
     @Column(name = "cantidadPuntos", nullable = false)
     private int cantidadPuntos;
 
@@ -46,5 +32,4 @@ public class QR implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_Comprador", nullable = false)
     private Comprador comprador;
-
 }
