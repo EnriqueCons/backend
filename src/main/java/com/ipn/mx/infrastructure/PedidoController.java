@@ -1,5 +1,8 @@
 package com.ipn.mx.infrastructure;
 
+import com.ipn.mx.domain.entity.Cafeteria;
+import com.ipn.mx.domain.entity.Comprador;
+import com.ipn.mx.domain.entity.DetallePedido;
 import com.ipn.mx.domain.entity.Pedido;
 import com.ipn.mx.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,8 @@ public class PedidoController {
 
     @Autowired
     private PedidoService service;
+    @Autowired
+    private PedidoService pedidoService;
 
     // Obtener todos los pedidos
     @GetMapping("/pedido")
@@ -36,12 +41,30 @@ public class PedidoController {
         return pedido;
     }
 
-    // Crear un nuevo pedido
     @PostMapping("/pedido")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido create(@RequestBody Pedido pedido) {
-        return service.save(pedido);
+
+        // Extraer y separar los detalles para evitar problemas con referencias circulares
+        List<DetallePedido> detalles = pedido.getDetalles();
+        pedido.setDetalles(null); // Evita guardar detalles con un pedido que aún no existe
+
+        // Guardar el pedido sin detalles (esto genera el ID/no_orden)
+        Pedido pedidoGuardado = service.save(pedido);
+
+        // Asignar el pedido ya guardado a cada detalle
+        for (DetallePedido detalle : detalles) {
+            detalle.setPedido(pedidoGuardado);
+        }
+
+        // Asignar la lista de detalles al pedido guardado
+        pedidoGuardado.setDetalles(detalles);
+
+        // Guardar nuevamente para persistir los detalles (asumiendo que hay cascada en la relación)
+        return service.save(pedidoGuardado);
     }
+
+
 
     // Actualizar un pedido existente
     @PutMapping("/pedido/{id}")
