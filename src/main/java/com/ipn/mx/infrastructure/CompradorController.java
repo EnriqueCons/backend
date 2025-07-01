@@ -34,7 +34,7 @@ public class CompradorController {
     private EmailService emailService;
 
     // Enviar correo para recuperar la contraseña
-    @PostMapping("/comprador/recuperar")
+    @PostMapping("https://backend-o9xo.onrender.com/apiComprador/comprador/recuperar")
     @ResponseStatus(HttpStatus.OK)
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
         String email = request.get("email");
