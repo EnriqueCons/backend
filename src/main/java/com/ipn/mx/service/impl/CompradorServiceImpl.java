@@ -7,7 +7,6 @@ import com.ipn.mx.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 
@@ -26,8 +25,6 @@ public class CompradorServiceImpl implements CompradorService {
     @Autowired
     private EmailService emailService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -78,7 +75,8 @@ public class CompradorServiceImpl implements CompradorService {
             Comprador comprador = opt.get();
 
             // TODO: Cifrar la contraseña con BCrypt (si usas Spring Security)
-            comprador.setContrasenia(passwordEncoder.encode(nuevaContrasena));
+            // comprador.setContrasenia(passwordEncoder.encode(nuevaContrasena));
+            comprador.setContrasenia(nuevaContrasena);
             comprador.setTokenRecuperacion(null);
             comprador.setFechaExpiracionToken(null);
 
