@@ -20,35 +20,28 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-public abstract class PedidoServiceImpl implements PedidoService {
+@Transactional
+public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public List<Pedido> readAll() {
-
         return pedidoRepository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Pedido read(Integer id) {
-
         return pedidoRepository.findById(id).orElse(null);
     }
 
     @Override
-    @Transactional
     public Pedido save(Pedido pedido) {
-
         return pedidoRepository.save(pedido);
     }
 
     @Override
-    @Transactional
     public void delete(Integer id) {
-
         pedidoRepository.deleteById(id);
     }
 
@@ -57,8 +50,6 @@ public abstract class PedidoServiceImpl implements PedidoService {
         return pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido NO encontrado, ID:" + id));
     }
-
-
 
     @Override
     public ByteArrayInputStream reportePDF(Pedido pedido) {
@@ -101,7 +92,7 @@ public abstract class PedidoServiceImpl implements PedidoService {
             documento.add(pedidoInfo);
 
             // Tabla de productos
-            PdfPTable tabla = new PdfPTable(4); // 4 columnas
+            PdfPTable tabla = new PdfPTable(4);
             tabla.setWidthPercentage(100);
             tabla.setSpacingBefore(10f);
             tabla.setSpacingAfter(10f);
@@ -150,7 +141,6 @@ public abstract class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Pedido> findPedidosByCafeteriaId(Integer idCafeteria) {
         return pedidoRepository.findByCafeteriaIdCafeteria(idCafeteria);
     }
@@ -159,5 +149,4 @@ public abstract class PedidoServiceImpl implements PedidoService {
     public List<Pedido> findPedidosByCompradorId(Integer idComprador) {
         return pedidoRepository.findPedidosByCompradorId(idComprador);
     }
-
 }
