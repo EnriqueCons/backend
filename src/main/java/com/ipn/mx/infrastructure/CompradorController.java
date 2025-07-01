@@ -26,21 +26,26 @@ public class CompradorController {
 
     // Enviar correo para recuperar la contraseña
     @PostMapping("/comprador/recuperar")
-    @ResponseStatus(HttpStatus.OK)
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
+        String correo = request.get("correo");
 
+        // 👉 Verifica si llega el correo aquí
+        System.out.println("Correo recibido en backend: " + correo);
 
-        // Exception para cuando no exista el correo dentro de la tabla cafeteria
-        Optional<Comprador> opt = compradorRepository.findByCorreo(email);
-        if (opt.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "El correo no está registrado en ningun comprador");
+        if (correo == null || correo.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio.");
         }
 
-        service.enviarCorreoRecuperacion(email);
+        Optional<Comprador> opt = compradorRepository.findByCorreo(correo);
+        if (opt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Correo no registrado");
+        }
+
+        service.enviarCorreoRecuperacion(correo);
         return "Se ha enviado un enlace de recuperación al correo registrado.";
     }
+
+
 
     //Validar el token
     @GetMapping("/comprador/validar-token")
