@@ -88,24 +88,36 @@ public class MenuController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> update(
             @PathVariable Integer id,
-            @ModelAttribute Menu menu,
-            @RequestParam("imagen") MultipartFile imagen
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen,
+            @RequestPart("nombreProducto") String nombreProducto,
+            @RequestPart("precio") BigDecimal precio,
+            @RequestPart("precioPuntos") Integer precioPuntos,
+            @RequestPart("stock") Integer stock,
+            @RequestPart("idCafeteria") Integer idCafeteria
     ) throws IOException {
         Menu existente = service.read(id);
         if (existente == null) {
             throw new RuntimeException("No se puede actualizar: Producto con ID " + id + " no existe.");
         }
 
-        existente.setNombreProducto(menu.getNombreProducto());
-        existente.setPrecio(menu.getPrecio());
-        existente.setPrecioPuntos(menu.getPrecioPuntos());
-        existente.setStock(menu.getStock());
-        existente.setCafeteria(cafeteriaService.read(menu.getCafeteria().getIdCafeteria()));
+        existente.setNombreProducto(nombreProducto);
+        existente.setPrecio(precio);
+        existente.setPrecioPuntos(precioPuntos);
+        existente.setStock(stock);
+        existente.setCafeteria(cafeteriaService.read(idCafeteria));
+
+        // ✅ Solo si se proporciona una nueva imagen
+        if (imagen != null && !imagen.isEmpty()) {
+            existente.setDatosImagen(imagen.getBytes());
+            existente.setTipoImagen(imagen.getContentType());
+            existente.setNombreImagen(imagen.getOriginalFilename());
+        }
 
         validarMenu(existente);
-        String respuesta = service.saveWithImage(imagen, existente);
+        String respuesta = service.saveWithImage(null, existente); // ← imagen ya fue aplicada manualmente
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
+
 
 
     // Obtener imagen del producto
