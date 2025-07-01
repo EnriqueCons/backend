@@ -7,6 +7,10 @@ import com.ipn.mx.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
+
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -21,6 +25,9 @@ public class CompradorServiceImpl implements CompradorService {
     private CompradorRepository compradorRepository;
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -37,7 +44,7 @@ public class CompradorServiceImpl implements CompradorService {
 
             compradorRepository.save(comprador);
 
-            String link = "http://localhost:8082/restablecer?token=" + token; // URL frontend
+            String link = "https://backend-1-p4sl.onrender.com/restablecer?token=" + token; // URL frontend
             String cuerpo = "<html>" +
                     "<body style='font-family: Arial, sans-serif;'>" +
                     "<h2>Hola " + comprador.getNombre() + ",</h2>" +
@@ -71,7 +78,7 @@ public class CompradorServiceImpl implements CompradorService {
             Comprador comprador = opt.get();
 
             // TODO: Cifrar la contraseña con BCrypt (si usas Spring Security)
-            comprador.setContrasenia(nuevaContrasena);
+            comprador.setContrasenia(passwordEncoder.encode(nuevaContrasena));
             comprador.setTokenRecuperacion(null);
             comprador.setFechaExpiracionToken(null);
 
