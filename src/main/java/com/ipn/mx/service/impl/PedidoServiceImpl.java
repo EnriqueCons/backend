@@ -58,6 +58,8 @@ public abstract class PedidoServiceImpl implements PedidoService {
                 .orElseThrow(() -> new RuntimeException("Pedido NO encontrado, ID:" + id));
     }
 
+
+
     @Override
     public ByteArrayInputStream reportePDF(Pedido pedido) {
         Document documento = new Document();
@@ -147,6 +149,11 @@ public abstract class PedidoServiceImpl implements PedidoService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pedido> findPedidosByCafeteriaId(Integer idCafeteria) {
+        return pedidoRepository.findByCafeteriaIdCafeteria(idCafeteria);
+    }
 
     @Override
     public List<Pedido> findPedidosByCompradorId(Integer idComprador) {

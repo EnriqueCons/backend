@@ -11,8 +11,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query("SELECT p FROM Pedido p WHERE p.comprador.id_Comprador = :idComprador")
     List<Pedido> findPedidosByCompradorId(@Param("idComprador") Integer idComprador);
 
-
-    @Query("SELECT p FROM Pedido p WHERE p.cafeteria.idCafeteria = :idCafeteria ORDER BY p.fechaCreacion DESC")
+    @Query("SELECT p FROM Pedido p WHERE p.cafeteria.idCafeteria = :idCafeteria")
     List<Pedido> findByCafeteriaIdCafeteria(@Param("idCafeteria") Integer idCafeteria);
-
 }
