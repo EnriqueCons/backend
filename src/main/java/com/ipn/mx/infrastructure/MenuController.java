@@ -84,7 +84,7 @@ public class MenuController {
     }
 
     // Actualizar producto con imagen
-    @PutMapping(value = "/productos/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/productos/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> update(
             @PathVariable Integer id,
