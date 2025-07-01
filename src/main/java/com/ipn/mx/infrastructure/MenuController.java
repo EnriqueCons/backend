@@ -84,32 +84,29 @@ public class MenuController {
     }
 
     // Actualizar producto con imagen
-    @PutMapping(value = "/productos/{id}", consumes = "multipart/form-data")
+    @PutMapping(value = "/productos/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> update(
             @PathVariable Integer id,
-            @RequestPart("imagen") MultipartFile imagen,
-            @RequestPart("nombreProducto") String nombreProducto,
-            @RequestPart("precio") BigDecimal precio,
-            @RequestPart("precioPuntos") Integer precioPuntos,
-            @RequestPart("stock") Integer stock,
-            @RequestPart("idCafeteria") Integer idCafeteria
+            @ModelAttribute Menu menu,
+            @RequestParam("imagen") MultipartFile imagen
     ) throws IOException {
         Menu existente = service.read(id);
         if (existente == null) {
             throw new RuntimeException("No se puede actualizar: Producto con ID " + id + " no existe.");
         }
 
-        existente.setNombreProducto(nombreProducto);
-        existente.setPrecio(precio);
-        existente.setPrecioPuntos(precioPuntos);
-        existente.setStock(stock);
-        existente.setCafeteria(cafeteriaService.read(idCafeteria));
+        existente.setNombreProducto(menu.getNombreProducto());
+        existente.setPrecio(menu.getPrecio());
+        existente.setPrecioPuntos(menu.getPrecioPuntos());
+        existente.setStock(menu.getStock());
+        existente.setCafeteria(cafeteriaService.read(menu.getCafeteria().getIdCafeteria()));
 
         validarMenu(existente);
         String respuesta = service.saveWithImage(imagen, existente);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
+
 
     // Obtener imagen del producto
     @GetMapping("/productos/{id}/imagen")
