@@ -83,40 +83,26 @@ public class MenuController {
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
-    // Actualizar producto con imagen
-    @PostMapping(value = "/productos/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping("/productos/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> update(
-            @PathVariable Integer id,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen,
-            @RequestPart("nombreProducto") String nombreProducto,
-            @RequestPart("precio") BigDecimal precio,
-            @RequestPart("precioPuntos") Integer precioPuntos,
-            @RequestPart("stock") Integer stock,
-            @RequestPart("idCafeteria") Integer idCafeteria
-    ) throws IOException {
-        Menu existente = service.read(id);
-        if (existente == null) {
+    public Menu update(@PathVariable Integer id, @RequestBody Menu menu) {
+        Menu m = service.read(id);
+        if (m == null) {
             throw new RuntimeException("No se puede actualizar: Producto con ID " + id + " no existe.");
         }
 
-        existente.setNombreProducto(nombreProducto);
-        existente.setPrecio(precio);
-        existente.setPrecioPuntos(precioPuntos);
-        existente.setStock(stock);
-        existente.setCafeteria(cafeteriaService.read(idCafeteria));
+        validarMenu(menu);
 
-        // ✅ Solo si se proporciona una nueva imagen
-        if (imagen != null && !imagen.isEmpty()) {
-            existente.setDatosImagen(imagen.getBytes());
-            existente.setTipoImagen(imagen.getContentType());
-            existente.setNombreImagen(imagen.getOriginalFilename());
-        }
+        m.setNombreProducto(menu.getNombreProducto());
+        m.setPrecio(menu.getPrecio());
+        m.setStock(menu.getStock());
+        m.setCafeteria(menu.getCafeteria());
 
-        validarMenu(existente);
-        String respuesta = service.saveWithImage(null, existente); // ← imagen ya fue aplicada manualmente
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        return service.save(m);
     }
+
+
+
 
 
 
