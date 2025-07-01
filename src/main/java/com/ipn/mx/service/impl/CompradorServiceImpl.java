@@ -44,7 +44,7 @@ public class CompradorServiceImpl implements CompradorService {
 
             compradorRepository.save(comprador);
 
-            String link = "https://backend-1-p4sl.onrender.com/restablecer?token=" + token; // URL frontend
+            String link = "http://localhost:4200/restablecer?token=" + token; // URL frontend
             String cuerpo = "<html>" +
                     "<body style='font-family: Arial, sans-serif;'>" +
                     "<h2>Hola " + comprador.getNombre() + ",</h2>" +
