@@ -30,17 +30,21 @@ public class CompradorController {
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
         String email = request.get("email");
 
-
-        // Exception para cuando no exista el correo dentro de la tabla cafeteria
         Optional<Comprador> opt = compradorRepository.findByCorreo(email);
         if (opt.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "El correo no está registrado en ningun comprador");
         }
 
-        service.enviarCorreoRecuperacion(email);
-        return "Se ha enviado un enlace de recuperación al correo registrado.";
+        try {
+            service.enviarCorreoRecuperacion(email);
+            return "Se ha enviado un enlace de recuperación al correo registrado.";
+        } catch (Exception e) {
+            e.printStackTrace(); // para ver en consola
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al enviar el correo: " + e.getMessage());
+        }
     }
+
 
     //Validar el token
     @GetMapping("/comprador/validar-token")
