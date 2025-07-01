@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -21,6 +24,7 @@ public class CompradorServiceImpl implements CompradorService {
     private CompradorRepository compradorRepository;
     @Autowired
     private EmailService emailService;
+
 
     @Override
     @Transactional
@@ -37,7 +41,7 @@ public class CompradorServiceImpl implements CompradorService {
 
             compradorRepository.save(comprador);
 
-            String link = "http://localhost:8082/restablecer?token=" + token; // URL frontend
+            String link = "http://localhost:4200/restablecer?token=" + token; // URL frontend
             String cuerpo = "<html>" +
                     "<body style='font-family: Arial, sans-serif;'>" +
                     "<h2>Hola " + comprador.getNombre() + ",</h2>" +
@@ -71,6 +75,7 @@ public class CompradorServiceImpl implements CompradorService {
             Comprador comprador = opt.get();
 
             // TODO: Cifrar la contraseña con BCrypt (si usas Spring Security)
+            // comprador.setContrasenia(passwordEncoder.encode(nuevaContrasena));
             comprador.setContrasenia(nuevaContrasena);
             comprador.setTokenRecuperacion(null);
             comprador.setFechaExpiracionToken(null);
