@@ -45,7 +45,7 @@ public class CafeteriaServiceImpl implements CafeteriaService {
 
             cafeteriaRepository.save(cafeteria);
 
-            String link = "http://localhost:8082/restablecer?token=" + token; // URL frontend
+            String link = "http://localhost:4200/restablecer?token=" + token; // URL frontend
             String cuerpo = "<html>" +
                     "<body style='font-family: Arial, sans-serif;'>" +
                     "<h2>Hola " + cafeteria.getNombre() + ",</h2>" +
