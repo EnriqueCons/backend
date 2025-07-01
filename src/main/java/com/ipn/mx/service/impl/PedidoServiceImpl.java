@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-public class PedidoServiceImpl implements PedidoService {
+public abstract class PedidoServiceImpl implements PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
 

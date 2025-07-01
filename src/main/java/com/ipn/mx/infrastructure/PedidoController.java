@@ -41,6 +41,14 @@ public class PedidoController {
         return pedido;
     }
 
+    @GetMapping("/pedido/cafeteria/{idCafeteria}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Pedido> findPedidosByCafeteriaId(@PathVariable Integer idCafeteria) {
+        return service.findPedidosByCafeteriaId(idCafeteria);
+    }
+
+
+
     @PostMapping("/pedido")
     @ResponseStatus(HttpStatus.CREATED)
     public Pedido create(@RequestBody Pedido pedido) {
