@@ -1,48 +1,78 @@
 package com.ipn.mx.infrastructure;
 
-import com.ipn.mx.domain.entity.Cafeteria;
 import com.ipn.mx.domain.entity.Comprador;
-import com.ipn.mx.domain.repository.CafeteriaRepository;
 import com.ipn.mx.domain.repository.CompradorRepository;
 import com.ipn.mx.service.CompradorService;
+import com.ipn.mx.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/apiComprador")
 public class CompradorController {
+    private static final Logger logger = LoggerFactory.getLogger(CompradorController.class);
 
     @Autowired
     private CompradorService service;
+
     @Autowired
     private CompradorRepository compradorRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // Enviar correo para recuperar la contraseña
     @PostMapping("/comprador/recuperar")
+    @ResponseStatus(HttpStatus.OK)
     public String recuperarContrasena(@RequestBody Map<String, String> request) {
-        String correo = request.get("correo");
+        String email = request.get("email");
+        logger.info("Correo recibido para recuperación: {}", email);
 
-        // 👉 Verifica si llega el correo aquí
-        System.out.println("Correo recibido en backend: " + correo);
-
-        if (correo == null || correo.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es obligatorio.");
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo es requerido");
         }
 
-        Optional<Comprador> opt = compradorRepository.findByCorreo(correo);
+        Optional<Comprador> opt = compradorRepository.findByCorreo(email);
         if (opt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Correo no registrado");
         }
 
-        service.enviarCorreoRecuperacion(correo);
-        return "Se ha enviado un enlace de recuperación al correo registrado.";
+        Comprador comprador = opt.get();
+        String token = generarTokenRecuperacion();
+        comprador.setTokenRecuperacion(token);
+        comprador.setFechaExpiracionToken(calcularFechaExpiracion());
+        compradorRepository.save(comprador);
+
+        String enlace = "https://backend-o9xo.onrender.com/restablecer-contrasena?token=" + token;
+        String cuerpo = "<p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>"
+                + "<a href=\"" + enlace + "\">Restablecer contraseña</a>"
+                + "<p>El enlace expirará en 24 horas.</p>";
+
+        emailService.enviarCorreo(email, "Recuperación de contraseña", cuerpo);
+
+        return "Se ha enviado un enlace de recuperación a tu correo";
+    }
+
+    private String generarTokenRecuperacion() {
+        return UUID.randomUUID().toString();
+    }
+
+    private Date calcularFechaExpiracion() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, 24);
+        return calendar.getTime();
     }
 
 
