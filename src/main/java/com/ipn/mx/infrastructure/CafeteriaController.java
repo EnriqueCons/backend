@@ -104,35 +104,28 @@ public class CafeteriaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
-    // Actualizar cafetería con imagen
-    @PutMapping(value = "/cafeterias" +
-            "/{id}", consumes = "multipart/form-data")
+    @PutMapping("/cafeterias/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> update(
             @PathVariable Integer id,
-            @RequestPart("imagen") MultipartFile imagen,
-            @RequestPart("nombre") String nombre,
-            @RequestPart("ubicacion") String ubicacion,
-            @RequestPart("horaInicio") String horaInicio,
-            @RequestPart("horaFin") String horaFin,
-            @RequestPart("correo") String correo,
-            @RequestPart("contrasenia") String contrasenia
-    ) throws IOException {
+            @RequestBody Cafeteria cafeteria
+    ) {
         Cafeteria existente = service.read(id);
         if (existente == null) {
             throw new RuntimeException("No se puede actualizar: Cafetería con ID " + id + " no existe.");
         }
 
-        existente.setNombre(nombre);
-        existente.setUbicacion(ubicacion);
-        existente.setHora_inicio(LocalTime.parse(horaInicio));
-        existente.setHora_fin(LocalTime.parse(horaFin));
-        existente.setCorreo(correo);
-        existente.setContrasenia(contrasenia);
+        existente.setNombre(cafeteria.getNombre());
+        existente.setUbicacion(cafeteria.getUbicacion());
+        existente.setHora_inicio(cafeteria.getHora_inicio());
+        existente.setHora_fin(cafeteria.getHora_fin());
+        existente.setCorreo(cafeteria.getCorreo());
+        existente.setContrasenia(cafeteria.getContrasenia());
 
-        String respuesta = service.saveWithImage(imagen, existente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        Cafeteria actualizada = service.save(existente);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Cafetería actualizada con ID " + actualizada.getIdCafeteria());
     }
+
 
     // Eliminar cafetería
     @DeleteMapping("/cafeterias/{id}")
